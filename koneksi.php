@@ -101,6 +101,100 @@ if (isset($_POST['deletepg'])) {
     }
 }
 
+//tambah user
+if (isset($_POST['addnewus'])) {
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    $addtouser = mysqli_query($conn, "INSERT INTO user (email, password) VALUES ('$email', '$password')");
+
+    if ($addtouser) {
+        header('location:user.php');
+    } else {
+        // If insertion fails, handle the error (e.g., display a message or log it)
+        header('location:index.php?error=insert_failed');
+    }
+}
+
+//update user
+if (isset($_POST['updateus'])) {
+    $id_user = $_POST['id_user'];
+    $email = $_POST['email'];
+    $password = $_POST['password'];
+
+    $updateuser = mysqli_query($conn, "UPDATE user SET email = '$email', password = '$password' WHERE id_user = '$id_user'");
+
+    if ($updateuser) {
+        header('location:user.php');
+    } else {
+        // If update fails, handle the error (e.g., display a message or log it)
+        header('location:index.php?error=update_failed');
+    }
+}
+
+//delete user
+if (isset($_POST['deleteus'])) {
+    $id_user = $_POST['id_user'];
+
+    $deleteuser = mysqli_query($conn, "DELETE FROM user WHERE id_user = '$id_user'");
+
+    if ($deleteuser) {
+        header('location:user.php');
+    } else {
+        // If deletion fails, handle the error (e.g., display a message or log it)
+        header('location:index.php?error=delete_failed');
+    }
+}
+
+if (isset($_POST['addnewbr'])) {
+    $id_barang = $_POST['id_barang'];
+    $nama_barang = $_POST['nama_barang'];
+    $deskripsi = $_POST['deskripsi'];
+
+    $addtobarang = mysqli_query($conn, "INSERT INTO barang (id_barang, nama_barang, deskripsi) VALUES ('$id_barang', '$nama_barang', '$deskripsi')");
+
+    if ($addtobarang) {
+        header('location:barang.php');
+    } else {
+        echo 'Gagal menambahkan data';
+    }
+}
+
+
+// update barang
+if (isset($_POST['updatebr'])) {
+    // Sanitize input
+    $id_barang = mysqli_real_escape_string($conn, $_POST['id_barang']);
+    $nama_barang = mysqli_real_escape_string($conn, $_POST['nama_barang']);
+    $deskripsi = mysqli_real_escape_string($conn, $_POST['deskripsi']);
+
+
+    // Update query with id_barang condition
+    $update = mysqli_query($conn, "UPDATE barang SET nama_barang='$nama_barang', deskripsi='$deskripsi' WHERE id_barang='$id_barang'");
+
+    if ($update) {
+        header('Location: barang.php');
+    } else {
+        echo 'Gagal mengupdate data: ' . mysqli_error($conn);
+    }
+}
+
+// hapus barang
+if (isset($_POST['deletebr'])) {
+    $id_barang = mysqli_real_escape_string($conn, $_POST['id_barang']);
+
+    // Delete query
+    $delete = mysqli_query($conn, "DELETE FROM barang WHERE id_barang='$id_barang'");
+
+    if ($delete) {
+        header('Location: barang.php');
+    } else {
+        echo 'Gagal menghapus data: ' . mysqli_error($conn);
+    }
+}
+
+
+
 // Fetch data
 $kurirResult = mysqli_query($conn, "SELECT id_kurir, nama FROM kurir");
 if (!$kurirResult) {
@@ -112,7 +206,7 @@ if (!$pelangganResult) {
     die("Gagal: " . mysqli_error($conn));
 }
 
-$barangResult = mysqli_query($conn, "SELECT id_barang, nama FROM barang");
+$barangResult = mysqli_query($conn, "SELECT id_barang, nama_barang FROM barang");
 if (!$barangResult) {
     die("Gagal: " . mysqli_error($conn));
 }
@@ -123,16 +217,16 @@ if (isset($_POST['addnewpgrm'])) {
     $tanggal = $_POST['tanggal'];
     $id_pelanggan = $_POST['id_pelanggan'];
     $id_kurir = $_POST['id_kurir'];
+    $id_barang = $_POST['id_barang'];
     $penerima = $_POST['penerima'];
     $alamat_tujuan = $_POST['alamat_tujuan'];
     $berat_barang = $_POST['berat'];
-    $jenis_pengiriman = $_POST['jenisPengiriman'];  // Corrected to match HTML name attribute
-    $kategori_pengiriman = $_POST['kategoriPengiriman'];  // Corrected to match HTML name attribute
-    $barang = $_POST['barang'];
+    $jenis_pengiriman = $_POST['jenisPengiriman'];
+    $kategori_pengiriman = $_POST['kategoriPengiriman'];
     $no_kendaraan = $_POST['no_kendaraan'];
     $status = 'terkirim';
-     
-    // hitung total harga
+
+    // Calculate total price
     $harga_per_kg = 0;
     switch($jenis_pengiriman) {
         case 'Regular':
@@ -156,28 +250,29 @@ if (isset($_POST['addnewpgrm'])) {
     }
     $total_harga = $berat_barang * $harga_per_kg;
 
-    $addtopengiriman = "INSERT INTO pengiriman (id_pengiriman, tanggal, id_pelanggan, id_kurir, Penerima, AlamatTujuan, BeratBarang, JenisPengiriman, TotalHarga, KategoriPengiriman, Barang, no_kendaraan, status)
-                        VALUES ('$id_pengiriman', '$tanggal', '$id_pelanggan', '$id_kurir', '$penerima', '$alamat_tujuan', '$berat_barang', '$jenis_pengiriman', '$total_harga', '$kategori_pengiriman', '$barang', '$no_kendaraan', '$status')";
+    $addtopengiriman = "INSERT INTO pengiriman (id_pengiriman, tanggal, id_pelanggan, id_kurir, id_barang, Penerima, AlamatTujuan, BeratBarang, JenisPengiriman, TotalHarga, KategoriPengiriman, no_kendaraan, status) 
+                        VALUES ('$id_pengiriman', '$tanggal', '$id_pelanggan', '$id_kurir', '$id_barang', '$penerima', '$alamat_tujuan', '$berat_barang', '$jenis_pengiriman', '$total_harga', '$kategori_pengiriman', '$no_kendaraan', '$status')";
 
     if (mysqli_query($conn, $addtopengiriman)) {
         header('Location: pengiriman.php');
         exit;
     } else {
-        echo "Error: " . $addtopengiriman . "<br>" . mysqli_error($conn);
+        echo 'Gagal menambahkan data: ' . mysqli_error($conn);
     }
 }
 
-if (isset($_POST['updatepgrm'])) {  // Update the button name for update operation
+
+if (isset($_POST['updatepgrm'])) {
     $id_pengiriman = $_POST['id_pengiriman'];
     $tanggal = $_POST['tanggal'];
     $id_pelanggan = $_POST['id_pelanggan'];
     $id_kurir = $_POST['id_kurir'];
+    $id_barang = $_POST['id_barang'];
     $penerima = $_POST['penerima'];
     $alamat_tujuan = $_POST['alamat_tujuan'];
     $berat_barang = $_POST['berat'];
     $jenis_pengiriman = $_POST['jenisPengiriman'];
     $kategori_pengiriman = $_POST['kategoriPengiriman'];
-    $barang = $_POST['barang'];
     $no_kendaraan = $_POST['no_kendaraan'];
     $status = 'terkirim';
 
@@ -209,13 +304,13 @@ if (isset($_POST['updatepgrm'])) {  // Update the button name for update operati
                             tanggal = '$tanggal',
                             id_pelanggan = '$id_pelanggan',
                             id_kurir = '$id_kurir',
+                            id_barang = '$id_barang',
                             Penerima = '$penerima',
                             AlamatTujuan = '$alamat_tujuan',
                             BeratBarang = '$berat_barang',
                             JenisPengiriman = '$jenis_pengiriman',
                             TotalHarga = '$total_harga',
                             KategoriPengiriman = '$kategori_pengiriman',
-                            Barang = '$barang',
                             no_kendaraan = '$no_kendaraan',
                             status = '$status'
                         WHERE id_pengiriman = '$id_pengiriman'";
@@ -228,6 +323,7 @@ if (isset($_POST['updatepgrm'])) {  // Update the button name for update operati
     }
 }
 
+// hapus 
 if (isset($_POST['deletepgrm'])) {
     $id_pengiriman = $_POST['id_pengiriman'];
 
@@ -242,7 +338,7 @@ if (isset($_POST['deletepgrm'])) {
 }
 
 $pelangganQuery = mysqli_query($conn, "SELECT id_pelanggan, nama FROM pelanggan");
-// Fetch kurir data
 $kurirQuery = mysqli_query($conn, "SELECT id_kurir, nama FROM kurir");
+$barangQuery = mysqli_query($conn, "SELECT id_barang, nama_barang FROM barang");
 
 ?>

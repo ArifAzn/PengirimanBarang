@@ -1,7 +1,6 @@
 <?php
     require 'koneksi.php';
     require 'cek.php';
-    require 'fetch_kategori.php';
 ?>
 
 <!DOCTYPE html>
@@ -44,14 +43,16 @@
                             </a>
                             <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                                 <nav class="sb-sidenav-menu-nested nav">
-                                    <a class="nav-link" href="kurir.php">Kurir</a>
+                                    <a class="nav-link" href="barang.php">Barang</a>
                                     <a class="nav-link" href="pelanggan.php">Pelanggan</a>
+                                    <a class="nav-link" href="kurir.php">Kurir</a>
+                                    <a class="nav-link" href="user.php">User</a>
                                 </nav>
                             </div>
-                            <a class="nav-link" href="pengiriman.php">
-                                <div class="sb-nav-link-icon"><i class="fas fa-book"></i></div>
-                                Pengiriman
-                            </a>
+                                <a class="nav-link" href="pengiriman.php">
+                                    <div class="sb-nav-link-icon"><i class="fas fa-truck"></i></div>
+                                    Pengiriman
+                                </a>
                             <a class="nav-link" href="logout.php">Logout</a>  
                         </div>
                     </div>
@@ -61,50 +62,51 @@
                 <main>
                     <div class="container-fluid px-4">
                         <h1 class="mt-4">Kurir</h1>
-                        <ol class="breadcrumb mb-4">
-                            <li class="breadcrumb-item active">Data Kurir</li>
-                        </ol>
-
                         <div class="card mb-4">
-                            <div class="card-header">
-                              <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal">Tambah</button>
+                            <div class="card-header navbar-dark bg-dark text-white">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="m-0">Data Kurir</h5>
+                                    <div>
+                                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal"><i class="fas fa-plus"></i> Tambah</button>
+                                        <a href="export_kurir.php" class="btn btn-info"><i class="fas fa-download"></i> Export Data</a>
+                                    </div>
+                                </div>
                             </div>
                             <div class="card-body">
-                                <table id="datatablesSimple">
-
-                                    <thead>
-                                        <tr>
-                                            <th>ID Kurir</th>
-                                            <th>Nama</th>
-                                            <th>Jenis Kelamin</th>
-                                            <th>Nomor Telepon</th>
-                                            <th>Alamat</th>
-                                            <th>Aksi</th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody>
-                                         <?php
-                                        $ambilsemuadata = mysqli_query($conn, "SELECT * FROM kurir");
-                                        while ($data = mysqli_fetch_assoc($ambilsemuadata)) {
-                                            $id_kurir = $data['id_kurir'];
-                                            $nama = $data['nama'];
-                                            $jenis_kelamin = $data['jenis_kelamin'];
-                                            $telepon = $data['telepon'];
-                                            $alamat = $data['alamat'];
-                                        ?>
-                                        <tr>
-                                            <td><?php echo $id_kurir; ?></td>
-                                            <td><?php echo $nama; ?></td>
-                                            <td><?php echo $jenis_kelamin; ?></td>
-                                            <td><?php echo $telepon; ?></td>
-                                            <td><?php echo $alamat; ?></td>
-                                            <td>
-                                                <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#updateModal<?php echo $id_kurir; ?>">Edit</button>
-                                                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $id_kurir; ?>">Hapus</button>
-                                            </td>
-                                        </tr>
-
+                                <div class="table-responsive">
+                                    <table id="datatablesSimple" class="table table-striped table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>ID Kurir</th>
+                                                <th>Nama</th>
+                                                <th>Jenis Kelamin</th>
+                                                <th>Nomor Telepon</th>
+                                                <th>Alamat</th>
+                                                <th>Aksi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <?php
+                                            $ambilsemuadata = mysqli_query($conn, "SELECT * FROM kurir");
+                                            while ($data = mysqli_fetch_assoc($ambilsemuadata)) {
+                                                $id_kurir = $data['id_kurir'];
+                                                $nama = $data['nama'];
+                                                $jenis_kelamin = $data['jenis_kelamin'];
+                                                $telepon = $data['telepon'];
+                                                $alamat = $data['alamat'];
+                                            ?>
+                                                <tr>
+                                                    <td><?php echo $id_kurir; ?></td>
+                                                    <td><?php echo $nama; ?></td>
+                                                    <td><?php echo $jenis_kelamin; ?></td>
+                                                    <td><?php echo $telepon; ?></td>
+                                                    <td><?php echo $alamat; ?></td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#updateModal<?php echo $id_kurir; ?>"><i class="fas fa-edit"></i> Edit</button>
+                                                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $id_kurir; ?>"><i class="fas fa-trash-alt"></i> Hapus</button>
+                                                    </td>
+                                                </tr>
+                                                
                                         <!-- Edit -->
                                         <div class="modal fade" id="updateModal<?php echo $id_kurir; ?>" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
                                             <div class="modal-dialog">
@@ -159,7 +161,7 @@
                                                     </div>
                                                     <!-- Modal Body -->
                                                     <div class="modal-body">
-                                                        <p>Apakah Anda yakin ingin menghapus kurir ini?</p>
+                                                        <p>Apakah anda yakin ingin menghapus <strong><?php echo $nama; ?></strong>?</p>
                                                     </div>
                                                     <!-- Modal Footer -->
                                                     <div class="modal-footer">
@@ -182,72 +184,72 @@
             </div>
         </div>
 
-        <!-- Tambah -->
-        <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <!-- Modal Header -->
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Tambah Kurir</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <!-- Modal body -->
-                <form method="POST" action="koneksi.php">
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label for="idKurirInput" class="form-label">ID Kurir</label>
-                            <input type="text" name="id_kurir" id="idKurirInput" class="form-control" disabled>
-                            <script>
-                                // Fetch next ID for id_barang
-                                fetch('fetch_id.php?field=id_kurir')
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        if (!data.error) {
-                                            document.getElementById('idKurirInput').value = data.nextId;
-                                        } else {
-                                            console.error('Error:', data.error);
-                                        }
-                                    })
-                                    .catch(error => console.error('Error:', error));
-                            </script>
+       <!-- Tambah -->
+<div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="exampleModalLabel">Tambah Kurir</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <!-- Modal body -->
+            <form method="POST" action="koneksi.php">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="idKurirInput" class="form-label">ID Kurir</label>
+                        <input type="text" name="id_kurir" id="idKurirInput" class="form-control" disabled>
+                        <script>
+                            // Fetch next ID for id_barang
+                            fetch('fetch_id.php?field=id_kurir')
+                                .then(response => response.json())
+                                .then(data => {
+                                    if (!data.error) {
+                                        document.getElementById('idKurirInput').value = data.nextId;
+                                    } else {
+                                        console.error('Error:', data.error);
+                                    }
+                                })
+                                .catch(error => console.error('Error:', error));
+                        </script>
 
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="namaKurirInput" class="form-label">Nama</label>
-                            <input type="text" name="nama" id="namaInput" class="form-control" placeholder="Nama Kurir" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="jenisKelaminInput" class="form-label">Jenis Kelamin</label>
-                            <select class="form-control" id="jenisKelaminInput" name="jenis_kelamin" required>
-                               <option value="" disabled selected>-- Pilih Jenis Kelamin --</option>
-                                <option value="Laki-laki">Laki-laki</option>
-                                <option value="Perempuan">Perempuan</option>
-                            </select>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="nomorTeleponInput" class="form-label">Nomor Telepon</label>
-                            <input type="text" name="telepon" id="teleponInput" class="form-control" placeholder="Nomor Telepon" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="alamatInput" class="form-label">Alamat</label>
-                            <textarea class="form-control" id="alamat" name="alamat" placeholder="Alamat" required></textarea>                        
-                        </div>
-
-                        <button type="submit" class="btn btn-primary" name="addnewkr">Simpan</button>
                     </div>
-                </form>
 
+                    <div class="mb-3">
+                        <label for="namaKurirInput" class="form-label">Nama</label>
+                        <input type="text" name="nama" id="namaInput" class="form-control" placeholder="Nama Kurir" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="jenisKelaminInput" class="form-label">Jenis Kelamin</label>
+                        <select class="form-select" id="jenisKelaminInput" name="jenis_kelamin" required>
+                            <option value="" disabled selected>-- Pilih Jenis Kelamin --</option>
+                            <option value="Laki-laki">Laki-laki</option>
+                            <option value="Perempuan">Perempuan</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="nomorTeleponInput" class="form-label">Nomor Telepon</label>
+                        <input type="text" name="telepon" id="teleponInput" class="form-control" placeholder="Nomor Telepon" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="alamatInput" class="form-label">Alamat</label>
+                        <textarea class="form-control" id="alamat" name="alamat" placeholder="Alamat" required></textarea>
+                    </div>
+
+                </div>
                 <!-- Modal footer -->
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="submit" class="btn btn-primary" name="addnewkr">Simpan</button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
+</div>
+
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src="js/scripts.js"></script>

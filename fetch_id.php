@@ -16,15 +16,16 @@ $field = $_GET['field'];
 
 if ($field == 'id_barang') {
     $nextId = getNextAutoIncrementId($conn, 'barang');
-} else if ($field == 'id_kategori') {
-    $nextId = getNextAutoIncrementId($conn, 'kategori');
 } else if ($field == 'id_pelanggan') {
     $nextId = getNextAutoIncrementId($conn, 'pelanggan');
 } else if ($field == 'id_kurir') {
     $nextId = getNextAutoIncrementId($conn, 'kurir');
 } else if ($field == 'id_pengiriman') {
     $nextId = getNextAutoIncrementId($conn, 'pengiriman');
+} else if ($field == 'id_user') {
+    $nextId = getNextAutoIncrementId($conn, 'user');
 } else {
+
     exit;
 }
 

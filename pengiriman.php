@@ -1,11 +1,6 @@
-    <?php
-session_start();
-    include 'koneksi.php';
+<?php
     require 'koneksi.php';
     require 'cek.php';
-    require 'fetch_kategori.php';
-
-
 ?>
 
 
@@ -18,7 +13,7 @@ session_start();
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>Barang</title>
+        <title>Pengiriman</title>
         <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
         <link href="css/styles.css" rel="stylesheet" />
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
@@ -50,14 +45,16 @@ session_start();
                             </a>
                             <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                                 <nav class="sb-sidenav-menu-nested nav">
-                                    <a class="nav-link" href="kurir.php">Kurir</a>
+                                    <a class="nav-link" href="barang.php">Barang</a>
                                     <a class="nav-link" href="pelanggan.php">Pelanggan</a>
+                                    <a class="nav-link" href="kurir.php">Kurir</a>
+                                    <a class="nav-link" href="user.php">User</a>
                                 </nav>
                             </div>
-                            <a class="nav-link" href="index.php">
-                                <div class="sb-nav-link-icon"><i class="fas fa-book"></i></div>
-                                Pengiriman
-                            </a>
+                                <a class="nav-link" href="pengiriman.php">
+                                    <div class="sb-nav-link-icon"><i class="fas fa-truck"></i></div>
+                                    Pengiriman
+                                </a>
                             <a class="nav-link" href="logout.php">Logout</a>  
                         </div>
                     </div>
@@ -74,18 +71,19 @@ session_start();
                         <div class="card mb-4">
                             <div class="card-header">
                                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#myModal">Tambah</button>
+                                <a href="export_pengiriman.php" class="btn btn-info">Export Data</a>
                             </div>
                             <div class="card-body">
-                                <table id="datatablesSimple">
+                                <table id="datatablesSimple" class="table table-striped table-bordered">
                                     <thead>
                                         <tr>
                                             <th>ID Pengiriman</th>
                                             <th>Tanggal</th>
                                             <th>Pelanggan</th>
                                             <th>Kurir</th>
+                                            <th>Barang</th>
                                             <th>Penerima</th>
                                             <th>Alamat Tujuan</th>
-                                            <th>Barang</th>
                                             <th>Kategori Pengiriman</th>
                                             <th>Jenis Pengiriman</th>
                                             <th>Berat Barang (Kg)</th>
@@ -103,9 +101,9 @@ session_start();
                                     $tanggal = $data['tanggal'];
                                     $id_pelanggan = $data['id_pelanggan'];
                                     $id_kurir = $data['id_kurir'];
+                                    $id_barang = $data['id_barang'];
                                     $penerima = $data['Penerima'];
                                     $alamat_tujuan = $data['AlamatTujuan'];
-                                    $barang = $data['Barang'];
                                     $kategori_pengiriman = $data['KategoriPengiriman'];
                                     $jenis_pengiriman = $data['JenisPengiriman'];
                                     $berat_barang = $data['BeratBarang'];
@@ -118,9 +116,9 @@ session_start();
                                     <td><?php echo $tanggal; ?></td>
                                     <td><?php echo $id_pelanggan; ?></td>
                                     <td><?php echo $id_kurir; ?></td>
+                                    <td><?php echo $id_barang; ?></td>
                                     <td><?php echo $penerima; ?></td>
                                     <td><?php echo $alamat_tujuan; ?></td>
-                                    <td><?php echo $barang; ?></td>
                                     <td><?php echo $kategori_pengiriman; ?></td>
                                     <td><?php echo $jenis_pengiriman; ?></td>
                                     <td><?php echo $berat_barang; ?></td>
@@ -135,12 +133,11 @@ session_start();
                                     </td>
                                     <td>
                                         <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#updateModal<?php echo $id_pengiriman; ?>">Edit</button>
-                                        <!-- Button to trigger the delete modal -->
                                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal<?php echo $id_pengiriman; ?>">Delete
                                         </button>
-
                                     </td>
                                 </tr>
+
                                 <!-- Delete Modal -->
                                 <div class="modal fade" id="deleteModal<?php echo $id_pengiriman; ?>" tabindex="-1" aria-labelledby="deleteModalLabel<?php echo $id_pengiriman; ?>" aria-hidden="true">
                                     <div class="modal-dialog">
@@ -162,6 +159,86 @@ session_start();
                                         </div>
                                     </div>
                                 </div>
+
+                                <!-- Update Modal -->
+                                <div class="modal fade" id="updateModal<?php echo $id_pengiriman; ?>" tabindex="-1" aria-labelledby="updateModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header bg-warning text-white">
+                                                <h5 class="modal-title" id="updateModalLabel<?php echo $id_pengiriman; ?>">Update Pengiriman</h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <form method="POST" action="koneksi.php">
+                                                <div class="modal-body">
+                                                    <input type="hidden" name="id_pengiriman" value="<?php echo $id_pengiriman; ?>">
+                                                    
+                                                    <div class="row">
+                                                        <div class="col-md-6 mb-3">
+                                                            <label for="tanggal<?php echo $id_pengiriman; ?>" class="form-label">Tanggal</label>
+                                                            <input type="date" class="form-control" id="tanggal<?php echo $id_pengiriman; ?>" name="tanggal" value="<?php echo $tanggal; ?>" required>
+                                                        </div>
+                                                        <input type="hidden" id="id_kurir<?php echo $id_pengiriman; ?>" name="id_kurir" value="<?php echo $id_kurir; ?>">
+                                                        <input type="hidden" id="id_pelanggan<?php echo $id_pengiriman; ?>" name="id_pelanggan" value="<?php echo $id_pelanggan; ?>">
+                                                        <input type="hidden" id="id_barang<?php echo $id_pengiriman; ?>" name="id_barang" value="<?php echo $id_barang; ?>">
+                                                    <div class="mb-3">
+                                                        <label for="penerima<?php echo $id_pengiriman; ?>" class="form-label">Penerima</label>
+                                                        <input type="text" class="form-control" id="penerima<?php echo $id_pengiriman; ?>" name="penerima" value="<?php echo $penerima; ?>" required>
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label for="alamat_tujuan<?php echo $id_pengiriman; ?>" class="form-label">Alamat Tujuan</label>
+                                                        <textarea class="form-control" id="alamat_tujuan<?php echo $id_pengiriman; ?>" name="alamat_tujuan" rows="3" required><?php echo $alamat_tujuan; ?></textarea>
+                                                    </div>
+                                                    
+                                                    <div class="row">
+                                                        <div class="col-md-6 mb-3">
+                                                            <label for="jenisPengiriman_update<?php echo $id_pengiriman; ?>" class="form-label">Jenis Pengiriman</label>
+                                                            <select class="form-select" id="jenisPengiriman_update<?php echo $id_pengiriman; ?>" name="jenisPengiriman" onchange="calculateTotal_update()" required>
+                                                                <option value="" disabled selected>-- Pilih Jenis Pengiriman --</option>
+                                                                <option value="Regular" <?php if ($jenis_pengiriman == 'Regular') echo 'selected'; ?>>Regular</option>
+                                                                <option value="YES" <?php if ($jenis_pengiriman == 'YES') echo 'selected'; ?>>Yakin Esok Sampai (YES)</option>
+                                                                <option value="OKE" <?php if ($jenis_pengiriman == 'OKE') echo 'selected'; ?>>Ongkos Kirim Ekonomis (OKE)</option>
+                                                                <option value="SPS" <?php if ($jenis_pengiriman == 'SPS') echo 'selected'; ?>>Super Speed (SPS)</option>
+                                                                <option value="COD" <?php if ($jenis_pengiriman == 'COD') echo 'selected'; ?>>Cash on Delivery (COD)</option>
+                                                                <option value="International" <?php if ($jenis_pengiriman == 'International') echo 'selected'; ?>>International</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label for="kategoriPengiriman<?php echo $id_pengiriman; ?>" class="form-label">Kategori Pengiriman</label>
+                                                            <select class="form-select" id="kategoriPengiriman<?php echo $id_pengiriman; ?>" name="kategoriPengiriman" required>
+                                                                <option value="" disabled selected>-- Pilih Kategori Pengiriman --</option>
+                                                                <option value="Box" <?php if ($kategori_pengiriman == 'Box') echo 'selected'; ?>>Box</option>
+                                                                <option value="Pallet" <?php if ($kategori_pengiriman == 'Pallet') echo 'selected'; ?>>Pallet</option>
+                                                                <option value="Bag" <?php if ($kategori_pengiriman == 'Bag') echo 'selected'; ?>>Bag</option>
+                                                                <option value="Parcel" <?php if ($kategori_pengiriman == 'Parcel') echo 'selected'; ?>>Parcel</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="row">
+                                                        <div class="col-md-6 mb-3">
+                                                            <label for="berat_update<?php echo $id_pengiriman; ?>" class="form-label">Berat Barang (kg)</label>
+                                                            <input type="number" class="form-control" id="berat_update<?php echo $id_pengiriman; ?>" name="berat" value="<?php echo $berat_barang; ?>" required oninput="calculateTotal_update(<?php echo $id_pengiriman; ?>)">
+                                                        </div>
+                                                        <div class="col-md-6 mb-3">
+                                                            <label for="totalHarga_update<?php echo $id_pengiriman; ?>" class="form-label">Total Harga (Rp)</label>
+                                                            <input type="text" class="form-control" id="totalHarga_update<?php echo $id_pengiriman; ?>" value="<?php echo $total_harga; ?>" disabled>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="mb-3">
+                                                        <label for="no_kendaraan<?php echo $id_pengiriman; ?>" class="form-label">No Kendaraan</label>
+                                                        <input type="text" class="form-control" id="no_kendaraan<?php echo $id_pengiriman; ?>" name="no_kendaraan" value="<?php echo $no_kendaraan; ?>" required>
+                                                    </div>
+
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                                                    <button type="submit" class="btn btn-warning" name="updatepgrm">Simpan</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
                                 <?php }?>
                             </tbody>
                         </table>
@@ -172,7 +249,7 @@ session_start();
     </div>
 </div>
 
-<!-- Modal for Pelanggan -->
+<!-- Modal Pelanggan -->
 <div class="modal fade" id="pelangganModal" tabindex="-1" aria-labelledby="pelangganModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -206,7 +283,7 @@ session_start();
     </div>
 </div>
 
-<!-- Modal for Kurir -->
+<!-- Modal Kurir -->
 <div class="modal fade" id="kurirModal" tabindex="-1" aria-labelledby="kurirModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -240,20 +317,54 @@ session_start();
     </div>
 </div>
 
-<!-- tambah -->
+<!-- Modal Barang -->
+<div class="modal fade" id="barangModal" tabindex="-1" aria-labelledby="barangModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="barangModalLabel">Pilih Barang</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-hover">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>ID Barang</th>
+                            <th>Nama Barang</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php while ($row = mysqli_fetch_assoc($barangQuery)) { ?>
+                            <tr>
+                                <td><?php echo $row['id_barang']; ?></td>
+                                <td><?php echo $row['nama_barang']; ?></td>
+                                <td>
+                                    <button type="button" class="btn btn-outline-primary" onclick="selectBarang('<?php echo $row['id_barang']; ?>', '<?php echo $row['nama_barang']; ?>')">Pilih</button>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Tambah Pengiriman Modal -->
 <div class="modal fade" id="myModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title" id="exampleModalLabel">Tambah Pengiriman</h5>
+                <h5 class="modal-title" id="exampleModalLabel"><i class="fas fa-shipping-fast"></i> Tambah Pengiriman</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form method="POST" action="koneksi.php">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="id_pengiriman" class="form-label">ID Pengiriman</label>
-                            <input type="text" class="form-control" id="idPengirimanInput" name="id_pengiriman" readonly disabled>
+                            <label for="idPengirimanInput" class="form-label">ID Pengiriman</label>
+                            <input type="text" class="form-control" id="idPengirimanInput" name="id_pengiriman" readonly>
                             <script>
                                 fetch('fetch_id.php?field=id_pengiriman')
                                     .then(response => response.json())
@@ -274,33 +385,39 @@ session_start();
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="id_pelanggan" class="form-label">Pelanggan</label>
+                            <label for="nama_pelanggan" class="form-label">Pelanggan</label>
                             <div class="input-group">
                                 <input type="hidden" id="id_pelanggan" name="id_pelanggan" required>
-                                <input type="text" class="form-control" id="nama_pelanggan" name="nama_pelanggan" readonly disabled>
-                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#pelangganModal">Pilih Pelanggan</button>
+                                <input type="text" class="form-control" id="nama_pelanggan" name="nama_pelanggan" readonly>
+                                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#pelangganModal"><i class="fas fa-user"></i> Pilih Pelanggan</button>
                             </div>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="id_kurir" class="form-label">Kurir</label>
+                            <label for="nama_kurir" class="form-label">Kurir</label>
                             <div class="input-group">
                                 <input type="hidden" id="id_kurir" name="id_kurir" required>
-                                <input type="text" class="form-control" id="nama_kurir" name="nama_kurir" readonly disabled>
-                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#kurirModal">Pilih Kurir</button>
+                                <input type="text" class="form-control" id="nama_kurir" name="nama_kurir" readonly>
+                                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#kurirModal"><i class="fas fa-truck"></i> Pilih Kurir</button>
                             </div>
                         </div>
                     </div>
-                    <div class="mb-3">
-                        <label for="penerima" class="form-label">Penerima</label>
-                        <input type="text" class="form-control" id="penerima" name="penerima" placeholder="Nama Penerima" required>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="nama_barang" class="form-label">Barang</label>
+                            <div class="input-group">
+                                <input type="hidden" id="id_barang" name="id_barang" required>
+                                <input type="text" class="form-control" id="nama_barang" name="nama_barang" readonly>
+                                <button type="button" class="btn btn-outline-primary w-100" data-bs-toggle="modal" data-bs-target="#barangModal"><i class="fas fa-box"></i> Pilih Barang</button>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="penerima" class="form-label">Penerima</label>
+                            <input type="text" class="form-control" id="penerima" name="penerima" placeholder="Nama Penerima" required>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label for="alamat_tujuan" class="form-label">Alamat Tujuan</label>
                         <textarea class="form-control" id="alamat_tujuan" name="alamat_tujuan" rows="3" placeholder="Alamat Tujuan" required></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="barang" class="form-label">Barang</label>
-                        <input type="text" class="form-control" id="barang" name="barang" placeholder="Nama Barang" required>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
@@ -333,7 +450,7 @@ session_start();
                         </div>
                         <div class="col-md-6 mb-3">
                             <label for="totalHarga" class="form-label">Total Harga (Rp)</label>
-                            <input type="text" class="form-control" id="totalHarga" readonly>
+                            <input type="text" class="form-control" id="totalHarga" disabled>
                         </div>
                     </div>
                     <div class="mb-3">
@@ -342,110 +459,27 @@ session_start();
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                    <button type="submit" class="btn btn-primary" name="addnewpgrm">Simpan</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><i class="fas fa-times"></i> Tutup</button>
+                    <button type="submit" class="btn btn-primary" name="addnewpgrm"><i class="fas fa-save"></i> Simpan</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
-<!-- Update Modal -->
-<div class="modal fade" id="updateModal<?php echo $id_pengiriman; ?>" tabindex="-1" aria-labelledby="updateModalLabel<?php echo $id_pengiriman; ?>" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-warning text-white">
-                <h5 class="modal-title" id="updateModalLabel<?php echo $id_pengiriman; ?>">Update Pengiriman</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <form method="POST" action="koneksi.php">
-                <div class="modal-body">
-                    <input type="hidden" name="id_pengiriman" value="<?php echo $id_pengiriman; ?>">
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="tanggal<?php echo $id_pengiriman; ?>" class="form-label">Tanggal</label>
-                            <input type="date" class="form-control" id="tanggal<?php echo $id_pengiriman; ?>" name="tanggal" value="<?php echo $tanggal; ?>" required>
-                        </div>
-                        <input type="hidden" id="id_kurir_update<?php echo $id_pengiriman; ?>" name="id_kurir" value="<?php echo $id_kurir; ?>">
-                        <input type="hidden" id="id_pelanggan_update<?php echo $id_pengiriman; ?>" name="id_pelanggan" value="<?php echo $id_pelanggan; ?>">
-                    <div class="mb-3">
-                        <label for="penerima<?php echo $id_pengiriman; ?>" class="form-label">Penerima</label>
-                        <input type="text" class="form-control" id="penerima<?php echo $id_pengiriman; ?>" name="penerima" value="<?php echo $penerima; ?>" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="alamat_tujuan<?php echo $id_pengiriman; ?>" class="form-label">Alamat Tujuan</label>
-                        <textarea class="form-control" id="alamat_tujuan<?php echo $id_pengiriman; ?>" name="alamat_tujuan" rows="3" required><?php echo $alamat_tujuan; ?></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="barang<?php echo $id_pengiriman; ?>" class="form-label">Barang</label>
-                        <input type="text" class="form-control" id="barang<?php echo $id_pengiriman; ?>" name="barang" value="<?php echo $barang; ?>" required>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="jenisPengiriman_update<?php echo $id_pengiriman; ?>" class="form-label">Jenis Pengiriman</label>
-                            <select class="form-select" id="jenisPengiriman_update<?php echo $id_pengiriman; ?>" name="jenisPengiriman" onchange="calculateTotal_update()" required>
-                                <option value="" disabled selected>-- Pilih Jenis Pengiriman --</option>
-                                <option value="Regular" <?php if ($jenis_pengiriman == 'Regular') echo 'selected'; ?>>Regular</option>
-                                <option value="YES" <?php if ($jenis_pengiriman == 'YES') echo 'selected'; ?>>Yakin Esok Sampai (YES)</option>
-                                <option value="OKE" <?php if ($jenis_pengiriman == 'OKE') echo 'selected'; ?>>Ongkos Kirim Ekonomis (OKE)</option>
-                                <option value="SPS" <?php if ($jenis_pengiriman == 'SPS') echo 'selected'; ?>>Super Speed (SPS)</option>
-                                <option value="COD" <?php if ($jenis_pengiriman == 'COD') echo 'selected'; ?>>Cash on Delivery (COD)</option>
-                                <option value="International" <?php if ($jenis_pengiriman == 'International') echo 'selected'; ?>>International</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="kategoriPengiriman<?php echo $id_pengiriman; ?>" class="form-label">Kategori Pengiriman</label>
-                            <select class="form-select" id="kategoriPengiriman<?php echo $id_pengiriman; ?>" name="kategoriPengiriman" required>
-                                <option value="" disabled selected>-- Pilih Kategori Pengiriman --</option>
-                                <option value="Box" <?php if ($kategori_pengiriman == 'Box') echo 'selected'; ?>>Box</option>
-                                <option value="Pallet" <?php if ($kategori_pengiriman == 'Pallet') echo 'selected'; ?>>Pallet</option>
-                                <option value="Bag" <?php if ($kategori_pengiriman == 'Bag') echo 'selected'; ?>>Bag</option>
-                                <option value="Parcel" <?php if ($kategori_pengiriman == 'Parcel') echo 'selected'; ?>>Parcel</option>
-                            </select>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="berat_update<?php echo $id_pengiriman; ?>" class="form-label">Berat Barang (kg)</label>
-                            <input type="number" class="form-control" id="berat_update<?php echo $id_pengiriman; ?>" name="berat" value="<?php echo $berat_barang; ?>" required oninput="calculateTotal_update(<?php echo $id_pengiriman; ?>)">
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="totalHarga_update<?php echo $id_pengiriman; ?>" class="form-label">Total Harga (Rp)</label>
-                            <input type="text" class="form-control" id="totalHarga_update<?php echo $id_pengiriman; ?>" value="<?php echo $total_harga; ?>" readonly>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="no_kendaraan<?php echo $id_pengiriman; ?>" class="form-label">No Kendaraan</label>
-                        <input type="text" class="form-control" id="no_kendaraan<?php echo $id_pengiriman; ?>" name="no_kendaraan" value="<?php echo $no_kendaraan; ?>" required>
-                    </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-                    <button type="submit" class="btn btn-warning" name="updatepgrm">Simpan</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
 
 
 <script>
+    //function memanggil id, nama dari tabel pelanggan
     function selectPelanggan(id, nama) {
         document.getElementById('id_pelanggan').value = id;
         document.getElementById('nama_pelanggan').value = nama;
-        // Hide the Pelanggan modal
         var pelangganModal = bootstrap.Modal.getInstance(document.getElementById('pelangganModal'));
         pelangganModal.hide();
         var myModal = new bootstrap.Modal(document.getElementById('myModal'));
         myModal.show();
     }
 
+    //function memanggil id, nama dari tabel kurir
     function selectKurir(id, nama) {
         document.getElementById('id_kurir').value = id;
         document.getElementById('nama_kurir').value = nama;
@@ -455,6 +489,16 @@ session_start();
         myModal.show();
     }
 
+    function selectBarang(id, nama_barang) {
+        document.getElementById('id_barang').value = id;
+        document.getElementById('nama_barang').value = nama_barang;
+        var barangModal = bootstrap.Modal.getInstance(document.getElementById('barangModal'));
+        barangModal.hide();
+        var myModal = new bootstrap.Modal(document.getElementById('myModal'));
+        myModal.show();
+    }
+
+    //function harga
      function calculateTotal() {
             const berat = parseFloat(document.getElementById('berat').value) || 0;
             const jenisPengiriman = document.getElementById('jenisPengiriman').value;
@@ -487,36 +531,37 @@ session_start();
             document.getElementById('totalHarga').value = totalHarga.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
         }
 
-function calculateTotal_update(id_pengiriman) {
-    const berat = parseFloat(document.getElementById(`berat_update${id_pengiriman}`).value) || 0;
-    const jenisPengiriman = document.getElementById(`jenisPengiriman_update${id_pengiriman}`).value;
-    let hargaPerKg = 0;
-    switch (jenisPengiriman) {
-        case 'Regular':
-            hargaPerKg = 10000;
-            break;
-        case 'YES':
-            hargaPerKg = 15000;
-            break;
-        case 'OKE':
-            hargaPerKg = 8000;
-            break;
-        case 'SPS':
-            hargaPerKg = 20000;
-            break;
-        case 'COD':
-            hargaPerKg = 12000;
-            break;
-        case 'International':
-            hargaPerKg = 50000;
-            break;
-        default:
-            hargaPerKg = 0;
-    }
+        //function harga_update
+        function calculateTotal_update(id_pengiriman) {
+            const berat = parseFloat(document.getElementById(`berat_update${id_pengiriman}`).value) || 0;
+            const jenisPengiriman = document.getElementById(`jenisPengiriman_update${id_pengiriman}`).value;
+            let hargaPerKg = 0;
+            switch (jenisPengiriman) {
+                case 'Regular':
+                    hargaPerKg = 10000;
+                    break;
+                case 'YES':
+                    hargaPerKg = 15000;
+                    break;
+                case 'OKE':
+                    hargaPerKg = 8000;
+                    break;
+                case 'SPS':
+                    hargaPerKg = 20000;
+                    break;
+                case 'COD':
+                    hargaPerKg = 12000;
+                    break;
+                case 'International':
+                    hargaPerKg = 50000;
+                    break;
+                default:
+                    hargaPerKg = 0;
+            }
 
-    const totalHarga = berat * hargaPerKg;
-    document.getElementById(`totalHarga_update${id_pengiriman}`).value = totalHarga.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
-}
+            const totalHarga = berat * hargaPerKg;
+            document.getElementById(`totalHarga_update${id_pengiriman}`).value = totalHarga.toLocaleString('id-ID', { style: 'currency', currency: 'IDR' });
+        }
 
 </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
