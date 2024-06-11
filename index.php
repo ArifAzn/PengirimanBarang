@@ -15,42 +15,196 @@ require 'cek.php';
     <link href="css/styles.css" rel="stylesheet">
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+   <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        /* Adjust container styles to ensure good spacing and alignment */
+        header {
+            padding: 1rem;
+            background-color: #f9f9f9; /* Ensure good background contrast */
+            border-bottom: 1px solid #ccc; /* Add a border if needed */
+        }
+        ul.breadcrumb {
+            padding: 10px 16px;
+            list-style: none;
+            background-color: #f8f9fa; /* Light background */
+            border-radius: 5px; /* Rounded corners for better aesthetics */
+        }
 
+        ul.breadcrumb li {
+            display: inline;
+            font-size: 18px;
+            color: #6c757d; /* Neutral color to blend with light background */
+        }
+
+        ul.breadcrumb li+li:before {
+            padding: 8px;
+            color: #6c757d; /* Same color as text for consistency */
+            content: "/\00a0";
+        }
+
+        ul.breadcrumb li a {
+            color: #0275d8;
+            text-decoration: none;
+        }
+
+        ul.breadcrumb li a:hover {
+            color: #01447e;
+            text-decoration: underline;
+        }
+        
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .sb-sidenav-menu-heading {
+            font-size: 1.1rem;
+            color: #6c757d;
+        }
+
+        .sb-nav-link-icon {
+            margin-right: 10px;
+        }
+
+        .breadcrumb {
+            background-color: #f8f9fa;
+            padding: 10px 15px;
+            border-radius: 5px;
+        }
+
+        .heading {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #343a40;
+        }
+
+        .card-header {
+            background-color: #007bff !important;
+            color: #fff;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .loading-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background-color: rgba(255, 255, 255, 0.5);
+          z-index: 1000;
+          display: none; /* Initially hide the overlay */
+        }
+
+        .loading-spinner {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+        }
+
+        .spinner-border {
+          width: 50px;
+          height: 50px;
+          border: 3px solid #ccc;
+          border-top: 3px solid #337ab7;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+
+    </style>
 </head>
 <body class="sb-nav-fixed">
-    <nav class="sb-topnav navbar navbar-expand navbar-dark bg-dark">
-        <a class="navbar-brand ps-3" href="index.php">JNE</a>
-        <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle" href="#!"><i class="fas fa-bars"></i></button>
-    </nav>
-    <div id="layoutSidenav">
-        <div id="layoutSidenav_nav">
-            <nav class="sb-sidenav accordion sb-sidenav-dark" id="sidenavAccordion">
-                <div class="sb-sidenav-menu">
-                    <div class="nav">
-                        <div class="sb-sidenav-menu-heading">Core</div>
-                        <a class="nav-link" href="index.php">
-                            <div class="sb-nav-link-icon"><i class="fas fa-tachometer-alt"></i></div>
-                            Dashboard
-                        </a>
-                        <div class="sb-sidenav-menu-heading">Interface</div>
-                        <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
-                            <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
-                            Halaman
-                            <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
-                        </a>
-                        <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
-                            <nav class="sb-sidenav-menu-nested nav">
-                                    <a class="nav-link" href="barang.php">Barang</a>
-                                    <a class="nav-link" href="pelanggan.php">Pelanggan</a>
-                                    <a class="nav-link" href="kurir.php">Kurir</a>
-                                    <a class="nav-link" href="user.php">User</a>
+
+<div class="loading-overlay">
+  <div class="loading-spinner">
+    <div class="spinner-border text-primary" role="status"></div>
+  </div>
+</div>
+
+<!-- Top Navbar -->
+<nav class="sb-topnav navbar navbar-expand navbar-dark bg-primary">
+    <!-- Navbar Brand-->
+    <a class="navbar-brand ps-3" href="index.php">JNE</a>
+    <!-- Sidebar Toggle-->
+    <button class="btn btn-link btn-sm order-1 order-lg-0 me-4 me-lg-0" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+    <!-- User Information Dropdown-->
+    <ul class="navbar-nav ms-auto me-3 me-lg-4">
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user fa-fw"></i> <?php echo isset($_SESSION['email']) ? $_SESSION['email'] : 'Guest'; ?>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="logout.php"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </li>
+    </ul>
+</nav>
+  <div id="layoutSidenav">
+    <!-- Sidebar Navigation -->
+    <div id="layoutSidenav_nav">
+        <nav class="sb-sidenav accordion sb-sidenav-primary" id="sidenavAccordion" style="background-color: #f8f9fa;">
+            <div class="sb-sidenav-menu">
+                <div class="nav">
+                    <!-- Core Section -->
+                    <div class="sb-sidenav-menu-heading">Core</div>
+                    <a class="nav-link" href="index.php" style="border-bottom: 1px solid #ddd;">
+                        <div class="sb-nav-link-icon"><i class="fas fa-home-alt"></i></div>
+                        Dashboard
+                    </a>
+                    <!-- Interface Section -->
+                    <div class="sb-sidenav-menu-heading">Interface</div>
+                    <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts" style="border-bottom: 1px solid #ddd;">
+                        <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                        Master Data
+                        <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
+                    </a>
+
+                    <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                        <nav class="sb-sidenav-menu-nested nav">
+                            <a class="nav-link" href="barang.php" style="border-bottom: 1px solid #ddd;">
+                                <div class="d-flex justify-content-start align-items-center">
+                                    <i class="fas fa-box mr-2"></i>
+                                    <span>Barang</span>
+                                </div>
+                            </a>
+                                <a class="nav-link" href="pelanggan.php" style="border-bottom: 1px solid #ddd;">
+                                    <div class="d-flex justify-content-start align-items-center">
+                                        <i class="fas fa-users mr-2"></i>
+                                        <span>Pelanggan</span>
+                                    </div>
+                                </a>
+                                <a class="nav-link" href="kurir.php" style="border-bottom: 1px solid #ddd;">
+                                    <div class="d-flex justify-content-start align-items-center">
+                                        <i class="fas fa-truck mr-2"></i>
+                                        <span>Kurir</span>
+                                    </div>
+                                </a>
                             </nav>
                         </div>
-                        <a class="nav-link" href="pengiriman.php">
-                            <div class="sb-nav-link-icon"><i class="fas fa-truck"></i></div>
-                            Pengiriman
+
+                        <a class="nav-link d-flex align-items-center" href="pengiriman.php" style="border-bottom: 1px solid #ddd;">
+                          <div class="sb-nav-link-icon"><i class="fas fa-truck"></i></div>
+                          Pengiriman
                         </a>
-                        <a class="nav-link" href="logout.php">Logout</a>  
+
+                        <a class="nav-link d-flex align-items-center" href="user.php" style="border-bottom: 1px solid #ddd;">
+                          <div class="sb-nav-link-icon"><i class="fas fa-user"></i></div>
+                          User
+                        </a>
+
                     </div>
                 </div>
             </nav>
@@ -58,17 +212,14 @@ require 'cek.php';
         <div id="layoutSidenav_content">
             <main>
                 <div class="container-fluid px-4">
-                    <h1 class="mt-4">Dashboard</h1>
-                    <ol class="breadcrumb mb-4">
-                        <li class="breadcrumb-item active">Dashboard</li>
-                    </ol>
+                                        <header  class="text-center my-4"><h1 class="heading">Dashboard</h1></header>
                     <div class="row">
                         <?php
                         $cards = [
                             ["title" => "Kurir", "color" => "primary", "url" => "kurir.php", "icon" => "fas fa-truck"],
                             ["title" => "Pelanggan", "color" => "warning", "url" => "pelanggan.php", "icon" => "fas fa-user"],
+                            ["title" => "Barang", "color" => "danger", "url" => "barang.php", "icon" => "fas fa-box"],
                             ["title" => "Admin", "color" => "success", "url" => "user.php", "icon" => "fas fa-user-shield"],
-                            ["title" => "Pengiriman", "color" => "danger", "url" => "pengiriman.php", "icon" => "fas fa-shipping-fast"],
                         ];
 
                         foreach ($cards as $card) {
@@ -82,7 +233,7 @@ require 'cek.php';
                                         <div><?php echo $card['title']; ?></div>
                                     </div>
                                     <div class="card-footer d-flex align-items-center justify-content-between">
-                                        <a class="small text-white stretched-link" href="<?php echo $card['url']; ?>" aria-label="<?php echo $card['title']; ?>">Selangkapnya</a>
+                                        <a class="small text-white stretched-link" href="<?php echo $card['url']; ?>" aria-label="<?php echo $card['title']; ?>">Selengkapnya</a>
                                         <div class="small text-white" aria-hidden="true"><i class="fas fa-angle-right"></i></div>
                                     </div>
                                 </div>
@@ -91,7 +242,8 @@ require 'cek.php';
                         }
                         ?>
                     </div>
-                    <!-- Chart Container -->
+
+                    <!-- Chart -->
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="card mb-4">
@@ -142,6 +294,17 @@ require 'cek.php';
                 });
             });
     });
+
+    $(document).ready(function() {
+  $(".loading-overlay").fadeIn(500); // Fade in the overlay with a 500ms animation
+});
+
+// Hide the loading overlay when the page is fully loaded
+$(window).on('load', function() {
+  setTimeout(function() {
+    $(".loading-overlay").fadeOut(500); // Fade out the overlay with a 500ms animation
+  }, 100); // Add a 2-second delay to ensure all resources are loaded
+});
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
     <script src="js/scripts.js"></script>
