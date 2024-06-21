@@ -73,8 +73,13 @@ if (isset($_POST['addnewpg'])) {
     $nama = $_POST['nama'];
     $telepon = $_POST['telepon'];
     $alamat = $_POST['alamat'];
-
-    $addtopelanggan = mysqli_query($conn, "INSERT INTO pelanggan (id_pelanggan, nama, telepon, alamat) VALUES ('$id_pelanggan', '$nama', '$telepon', '$alamat')");
+    
+    // Assuming id_user is obtained from session
+    $id_user = $_SESSION['id_user']; // Replace with your actual session variable
+    
+    // Insert into pelanggan table
+    $addtopelanggan = mysqli_query($conn, "INSERT INTO pelanggan (id_pelanggan, id_user, nama, telepon, alamat) 
+                                           VALUES ('$id_pelanggan', '$id_user', '$nama', '$telepon', '$alamat')");
 
     if ($addtopelanggan) {
         $_SESSION['status'] = "Menambahkan Pelanggan";
@@ -83,7 +88,7 @@ if (isset($_POST['addnewpg'])) {
     } else {
         echo 'Gagal menambahkan data';
     }
-} 
+}
 
 //update pelanggan
 if (isset($_POST['updatepg'])) {
@@ -92,7 +97,10 @@ if (isset($_POST['updatepg'])) {
     $telepon = $_POST['telepon'];
     $alamat = $_POST['alamat'];
 
-    $updatepelanggan = mysqli_query($conn, "UPDATE pelanggan SET nama='$nama', telepon='$telepon', alamat='$alamat' WHERE id_pelanggan='$id_pelanggan'");
+    // Update pelanggan table
+    $updatepelanggan = mysqli_query($conn, "UPDATE pelanggan 
+                                            SET nama='$nama', telepon='$telepon', alamat='$alamat' 
+                                            WHERE id_pelanggan='$id_pelanggan'");
 
     if ($updatepelanggan) {
         $_SESSION['status'] = "Mengupdate Pelanggan";
@@ -102,10 +110,12 @@ if (isset($_POST['updatepg'])) {
         echo 'Gagal mengupdate data';
     }
 }
+
 //hapus pelanggan
 if (isset($_POST['deletepg'])) {
     $id_pelanggan = $_POST['id_pelanggan'];
 
+    // Delete from pelanggan table
     $deletepelanggan = mysqli_query($conn, "DELETE FROM pelanggan WHERE id_pelanggan='$id_pelanggan'");
 
     if ($deletepelanggan) {
@@ -117,62 +127,78 @@ if (isset($_POST['deletepg'])) {
     }
 }
 
+
 //tambah user
 if (isset($_POST['addnewus'])) {
+    $first_name = $_POST['first_name'];
+    $last_name = $_POST['last_name'];
     $email = $_POST['email'];
     $password = $_POST['password'];
+    $role = $_POST['role'];
 
-    $addtouser = mysqli_query($conn, "INSERT INTO user (email, password) VALUES ('$email', '$password')");
-
-    if ($addtouser) {
-        $_SESSION['status'] = "Menambahkan User";
+    $adduser = mysqli_query($conn, "INSERT INTO user (first_name, last_name, email, password, role) VALUES ('$first_name', '$last_name', '$email', '$password', '$role')");
+    if ($adduser) {
+        $_SESSION['status'] = "User berhasil ditambahkan";
         $_SESSION['alert_type'] = "success";
-        header('location:user.php');
     } else {
-        echo 'Gagal menambahkan data';
+        $_SESSION['status'] = "Gagal menambahkan user";
+        $_SESSION['alert_type'] = "danger";
     }
+    header('Location: user.php');
 }
 
 //update user
 if (isset($_POST['updateus'])) {
     $id_user = $_POST['id_user'];
+    $first_name = $_POST['first_name'];
+    $last_name = $_POST['last_name'];
     $email = $_POST['email'];
     $password = $_POST['password'];
+    $role = $_POST['role']; // Get role from form
 
-    $updateuser = mysqli_query($conn, "UPDATE user SET email = '$email', password = '$password' WHERE id_user = '$id_user'");
-
+    $updateuser = mysqli_query($conn, "UPDATE user SET first_name = '$first_name', last_name = '$last_name', email = '$email', password = '$password', role = '$role' WHERE id_user = '$id_user'");
     if ($updateuser) {
-        $_SESSION['status'] = "Mengupdate User";
+        $_SESSION['status'] = "User berhasil diperbarui";
         $_SESSION['alert_type'] = "warning";
-        header('location:user.php');
     } else {
-        echo 'Gagal mengupdate data';
+        $_SESSION['status'] = "Gagal memperbarui user";
+        $_SESSION['alert_type'] = "danger";
     }
+    header('Location: user.php');
 }
 
-//delete user
+// Delete user
 if (isset($_POST['deleteus'])) {
     $id_user = $_POST['id_user'];
 
-    $deleteuser = mysqli_query($conn, "DELETE FROM user WHERE id_user = '$id_user'");
-
-    if ($deleteuser) {
-        $_SESSION['status'] = "Menghapus User";
-        $_SESSION['alert_type'] = "danger";
-        header('location:user.php');
+    // Delete dependent records in barang first
+    $deletebarang = mysqli_query($conn, "DELETE FROM barang WHERE id_user = '$id_user'");
+    if ($deletebarang) {
+        // Proceed to delete the user
+        $deleteuser = mysqli_query($conn, "DELETE FROM user WHERE id_user = '$id_user'");
+        if ($deleteuser) {
+            $_SESSION['status'] = "User berhasil dihapus";
+            $_SESSION['alert_type'] = "danger";
+        } else {
+            $_SESSION['status'] = "Gagal menghapus user";
+            $_SESSION['alert_type'] = "danger";
+        }
     } else {
-        echo 'Gagal menghapus data';
+        $_SESSION['status'] = "Gagal menghapus barang yang terkait";
+        $_SESSION['alert_type'] = "danger";
     }
+
+    header('Location: user.php');
 }
 
-//tambah barang
 if (isset($_POST['addnewbr'])) {
     $id_barang = $_POST['id_barang'];
     $nama_barang = $_POST['nama_barang'];
     $deskripsi = $_POST['deskripsi'];
     $qty = $_POST['qty'];
+    $id_user = $_SESSION['id_user']; 
 
-    $addtobarang = mysqli_query($conn, "INSERT INTO barang (id_barang, nama_barang, qty, deskripsi) VALUES ('$id_barang', '$nama_barang', '$qty','$deskripsi')");
+    $addtobarang = mysqli_query($conn, "INSERT INTO barang (id_barang, nama_barang, qty, deskripsi, id_user) VALUES ('$id_barang', '$nama_barang', '$qty','$deskripsi', '$id_user')");
 
     if ($addtobarang) {
         $_SESSION['status'] = "Menambahkan Barang";
@@ -219,6 +245,7 @@ if (isset($_POST['deletebr'])) {
     }
 }
 
+
 // Fetch data
 $kurirResult = mysqli_query($conn, "SELECT id_kurir, nama FROM kurir");
 if (!$kurirResult) {
@@ -247,7 +274,6 @@ if (isset($_POST['addnewpgrm'])) {
     $berat_barang = $_POST['berat'];
     $jenis_pengiriman = $_POST['jenisPengiriman'];
     $kategori_pengiriman = $_POST['kategoriPengiriman'];
-    $no_kendaraan = $_POST['no_kendaraan'];
     $status = 'terkirim';
 
     // Calculate total price
@@ -274,8 +300,8 @@ if (isset($_POST['addnewpgrm'])) {
     }
     $total_harga = $berat_barang * $harga_per_kg;
 
-    $addtopengiriman = "INSERT INTO pengiriman (id_pengiriman, tanggal, id_pelanggan, id_kurir, id_barang, Penerima, AlamatTujuan, BeratBarang, JenisPengiriman, TotalHarga, KategoriPengiriman, no_kendaraan, status) 
-                        VALUES ('$id_pengiriman', '$tanggal', '$id_pelanggan', '$id_kurir', '$id_barang', '$penerima', '$alamat_tujuan', '$berat_barang', '$jenis_pengiriman', '$total_harga', '$kategori_pengiriman', '$no_kendaraan', '$status')";
+    $addtopengiriman = "INSERT INTO pengiriman (id_pengiriman, tanggal, id_pelanggan, id_kurir, id_barang, Penerima, AlamatTujuan, BeratBarang, JenisPengiriman, TotalHarga, KategoriPengiriman, status) 
+                        VALUES ('$id_pengiriman', '$tanggal', '$id_pelanggan', '$id_kurir', '$id_barang', '$penerima', '$alamat_tujuan', '$berat_barang', '$jenis_pengiriman', '$total_harga', '$kategori_pengiriman', '$status')";
 
     if (mysqli_query($conn, $addtopengiriman)) {
          $_SESSION['status'] = "Menambahkan Pengiriman";
