@@ -1,29 +1,56 @@
 <?php
-    require 'koneksi.php';
+require 'koneksi.php';
 
-    if (session_status() == PHP_SESSION_NONE) {
-        session_start();
-    }
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
 
-    $loginSuccess = false;
-    $loginFailed = false;
+$loginFailed = false;
 
-    if (isset($_POST['login'])) {
-        $email = $_POST['email'];
-        $password = $_POST['password'];
+if (isset($_POST['login'])) {
+    $email = $_POST['email'];
+    $password = md5($_POST['password']);
 
-        // konek tabel user(login)
-        $cekdb = mysqli_query($conn, "SELECT * FROM user WHERE email = '$email' AND password = '$password'");
-        $hitung = mysqli_num_rows($cekdb);
-        if ($hitung > 0) {
-            $_SESSION['log'] = true;
-            $_SESSION['email'] = $email;
-            $loginSuccess = true;
-        } else {
-            $loginFailed = true;
+    $query = "SELECT * FROM user WHERE email = ? AND password = ?";
+    $stmt = mysqli_prepare($conn, $query);
+    mysqli_stmt_bind_param($stmt, 'ss', $email, $password);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if ($result && mysqli_num_rows($result) > 0) {
+        $user = mysqli_fetch_assoc($result);
+
+        $_SESSION['log'] = true;
+        $_SESSION['id_user'] = $user['id_user'];
+        $_SESSION['email'] = $email;
+        $_SESSION['role'] = $user['role'];
+
+        if ($user['role'] == 'admin') {
+            header('Location: index.php');
+        } elseif ($user['role'] == 'pelanggan') {
+            $pelangganQuery = "SELECT id_pelanggan FROM pelanggan WHERE id_user = ?";
+            $pelangganStmt = mysqli_prepare($conn, $pelangganQuery);
+            mysqli_stmt_bind_param($pelangganStmt, 'i', $user['id_user']);
+            mysqli_stmt_execute($pelangganStmt);
+            $pelangganResult = mysqli_stmt_get_result($pelangganStmt);
+
+            if ($pelangganResult && mysqli_num_rows($pelangganResult) > 0) {
+                $pelanggan = mysqli_fetch_assoc($pelangganResult);
+                $_SESSION['id_pelanggan'] = $pelanggan['id_pelanggan'];
+            }
+
+            header('Location: pelanggan_dashboard.php');
         }
+
+        exit();
+    } else {
+        $loginFailed = true;
     }
+
+    mysqli_stmt_close($stmt);
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -240,6 +267,7 @@
             margin-top: 2rem;
             font-size: 0.9rem;
             color: #007bff;
+            text-align: center;
         }
 
         .footer a {
@@ -251,16 +279,21 @@
             text-decoration: underline;
         }
 
-    </style>
+</style>
 </head>
 
 <body>
-
     <section class="gradient-custom">
         <div class="card">
             <div class="card-body text-center">
                 <div class="header">Welcome Back!</div>
                 <div class="sub-header">Masukkan Email dan Password</div>
+                <?php if ($loginFailed): ?>
+                    <div class="alert alert-danger alert-dismissible fade show alert-center" role="alert">
+                        Email atau password salah!
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <?php endif; ?>
                 <form method="POST">
                     <div class="form-outline form-white mb-4">
                         <input type="email" id="inputEmail" class="form-control form-control-lg" name="email" placeholder=" " required />
@@ -273,65 +306,13 @@
                     <button class="btn btn-outline-primary btn-lg px-5" type="submit" name="login">Login</button>
                 </form>
             </div>
+            <div class="card-footer">
+                <div class="footer">
+                    Belum punya akun? <a href="register.php">Register disini</a>
+                </div>
+            </div>
         </div>
     </section>
-
-
-    <!-- sukses Modal -->
-    <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="successModalLabel"><i class="bi bi-check-circle-fill"></i>Sukses!</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Login Berhasil!</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Gagal Modal -->
-    <div class="modal fade" id="failureModal" tabindex="-1" aria-labelledby="failureModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="failureModalLabel"><i class="bi bi-x-circle-fill"></i>Gagal Login!</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Email dan Password Salah.</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/5.0.0/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-
-    <script>
-        <?php if ($loginSuccess) : ?>
-            document.addEventListener('DOMContentLoaded', function() {
-                var myModal = new bootstrap.Modal(document.getElementById('successModal'));
-                myModal.show();
-                setTimeout(function() {
-                    window.location.href = 'index.php';
-                }, 3000); // delay
-            });
-        <?php elseif ($loginFailed) : ?>
-            document.addEventListener('DOMContentLoaded', function() {
-                var myModal = new bootstrap.Modal(document.getElementById('failureModal'));
-                myModal.show();
-            });
-        <?php endif; ?>
-    </script>
-    
+    <?php include 'footer.php'; ?>
 </body>
 </html>

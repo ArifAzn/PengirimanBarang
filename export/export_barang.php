@@ -1,6 +1,5 @@
 <?php
-require 'koneksi.php';
-require 'cek.php';
+require '../koneksi.php';
 ?>
 <!DOCTYPE html>
 <html lang="en">

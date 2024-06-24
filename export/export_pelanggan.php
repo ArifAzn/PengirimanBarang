@@ -1,10 +1,9 @@
 <?php
-    require 'koneksi.php';
-    require 'cek.php';
+require '../koneksi.php';
 ?>
 <html>
 <head>
-  <title>Data Kurir</title>
+  <title>Data Pelanggan</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
@@ -17,42 +16,38 @@
 
 <body>
 <div class="container">
-			<h2>Data Kurir</h2>
-			<h4>(Kurir)</h4>
+			<h2>Data Pelanggan</h2>
+			<h4>(Pelanggan)</h4>
 				<div class="data-tables datatable-dark">
-					               <table id="datatablesSimple">
-                                    <thead>
-                                        <tr>
-                                            <th>ID Kurir</th>
-                                            <th>Nama</th>
-                                            <th>Jenis Kelamin</th>
-                                            <th>Nomor Telepon</th>
-                                            <th>Alamat</th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody>
-                                         <?php
-                                        $ambilsemuadata = mysqli_query($conn, "SELECT * FROM kurir");
-                                        while ($data = mysqli_fetch_assoc($ambilsemuadata)) {
-                                            $id_kurir = $data['id_kurir'];
-                                            $nama = $data['nama'];
-                                            $jenis_kelamin = $data['jenis_kelamin'];
-                                            $telepon = $data['telepon'];
-                                            $alamat = $data['alamat'];
-                                        ?>
-                                        <tr>
-                                            <td><?php echo $id_kurir; ?></td>
-                                            <td><?php echo $nama; ?></td>
-                                            <td><?php echo $jenis_kelamin; ?></td>
-                                            <td><?php echo $telepon; ?></td>
-                                            <td><?php echo $alamat; ?></td>
-                                        </tr>
-                                        <?php } ?>
+                    <table id="datatablesSimple">
+                        <thead>
+                            <tr>
+                                <th>ID Pelanggan</th>
+                                <th>Nama Pelanggan</th>
+                                <th>Telepon</th>
+                                <th>Alamat</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $ambilsemuadata = mysqli_query($conn, "SELECT * FROM pelanggan");
+                            while ($data = mysqli_fetch_assoc($ambilsemuadata)) {
+                                $id_pelanggan = $data['id_pelanggan'];
+                                $nama = $data['nama'];
+                                $telepon = $data['telepon'];
+                                $alamat = $data['alamat'];
+                            ?>
+                            <tr>
+                                <td><?php echo $id_pelanggan; ?></td>
+                                <td><?php echo $nama; ?></td>
+                                <td><?php echo $telepon; ?></td>
+                                <td><?php echo $alamat; ?></td>
+                            </tr>
+                            <?php } ?>
                                     </tbody>
                                 </table>
-					
-				</div>
+                    
+                </div>
 </div>
 	
 <script>
